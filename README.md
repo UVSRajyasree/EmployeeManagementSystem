@@ -1,7 +1,10 @@
 # EmployeeManagementSystem
-# Employee Management System
 
-A Spring Boot REST API project developed incrementally from basic CRUD operations to advanced concepts such as DTOs, Exception Handling, Validation, Logging, Swagger, Pagination, Custom Queries, and Entity Relationships.
+
+
+A production-oriented Spring Boot REST API project built incrementally from basic CRUD operations to advanced concepts such as DTOs, Validation, Exception Handling, Logging, Swagger, Pagination, Custom Queries, Entity Relationships, and Auditing.
+
+---
 
 ## 🚀 Features
 
@@ -12,28 +15,86 @@ A Spring Boot REST API project developed incrementally from basic CRUD operation
 - Update Employee
 - Delete Employee
 
+---
+
 ### Phase 2 - Intermediate Features
-- DTO Layer (RequestDTO & ResponseDTO)
+
+#### DTO Layer
+- Request DTO
+- Response DTO
+- Entity ↔ DTO Mapping
+
+#### Exception Handling
 - Global Exception Handling
 - Custom Exceptions
-- Validation using Jakarta Validation
-- Logging using SLF4J
-- Swagger/OpenAPI Documentation
-- Pagination and Sorting
-- Custom Queries using Spring Data JPA
-- One-To-Many and Many-To-One Relationships
+- Validation Exception Handling
+
+#### Validation
+- Name cannot be empty
+- Salary must be positive
+
+#### Logging
+- SLF4J Logging
+- INFO and ERROR Logs
+
+#### API Documentation
+- Swagger / OpenAPI
+
+#### Pagination & Sorting
+- Pageable APIs
+- Sorting by any field
+
+#### Custom Queries
+- Find Employee By Name
+- Find Employee By Department
+- Find Employees By Salary Range
+- Find Employees With Salary Greater Than
+
+#### Relationships
+- One-To-Many
+- Many-To-One
+
+Department ↔ Employee Relationship
+
+```
+Department (1)
+     |
+     | One-To-Many
+     |
+Employee (Many)
+```
+
+---
+
+### Phase 3 - Advanced Features
+
+#### Auditing
+Automatically maintains:
+
+- createdAt
+- updatedAt
+
+using:
+
+- `@PrePersist`
+- `@PreUpdate`
+
+---
 
 ## 🛠 Technologies Used
 
 - Java 17
 - Spring Boot
 - Spring Data JPA
+- Hibernate
 - MySQL
 - Maven
 - Lombok
 - Swagger/OpenAPI
 - SLF4J Logging
-- Hibernate
+- Jakarta Validation
+
+---
 
 ## 📂 Project Structure
 
@@ -51,72 +112,85 @@ src/main/java
 └── EmployeeManagementApplication
 ```
 
-## Entity Relationship
+---
 
-### Department ↔ Employee
+## Database Schema
 
-```
-Department (1)
-    |
-    |
-    | One-To-Many
-    |
-Employee (Many)
-```
+### Department Table
 
-- One Department can have many Employees.
-- One Employee belongs to one Department.
+| id | department_name |
+|----|---------------|
+| 1 | IT |
+| 2 | HR |
+
+---
+
+### Employee Table
+
+| id | name | salary | department_id | created_at | updated_at |
+|----|------|--------|---------------|------------|------------|
+| 1 | Ram | 100000 | 1 | 2026-06-22 10:00 | 2026-06-22 10:00 |
+
+---
 
 ## API Endpoints
 
 ### Department APIs
 
 | Method | Endpoint | Description |
-|----------|---------|------------|
+|----------|----------|------------|
 | POST | /departments | Create Department |
 | GET | /departments | Get All Departments |
+
+---
 
 ### Employee APIs
 
 | Method | Endpoint | Description |
-|----------|---------|------------|
+|----------|----------|------------|
 | POST | /employees/add | Create Employee |
 | GET | /employees | Get All Employees |
 | GET | /employees/{id} | Get Employee By Id |
 | PUT | /employees/update/{id} | Update Employee |
 | DELETE | /employees/{id} | Delete Employee |
 
+---
+
 ### Pagination and Sorting
 
-```
+```http
 GET /employees/page-sort?page=0&size=5&field=name
 ```
+
+---
 
 ### Custom Query APIs
 
 #### Find Employee By Name
 
-```
+```http
 GET /employees/name?name=Ram
 ```
 
 #### Find Employee By Department
 
-```
+```http
 GET /employees/department?department=IT
 ```
 
-#### Find Salary Greater Than
+#### Find Employees With Salary Greater Than
 
-```
+```http
 GET /employees/salary-greater?salary=50000
 ```
 
 #### Find Employees Between Salary Range
 
-```
+```http
 GET /employees/salary-range?minSalary=30000&maxSalary=80000
 ```
+
+---
 
 ## Request Examples
 
@@ -148,23 +222,36 @@ GET /employees/salary-range?minSalary=30000&maxSalary=80000
 }
 ```
 
+---
+
 ## Validation
 
-- Name cannot be empty.
-- Salary must be positive.
-- Department must exist.
+### EmployeeRequestDto
+
+```java
+@NotBlank(message = "Name should not be empty")
+private String name;
+
+@Positive(message = "Salary should be positive")
+private Double salary;
+```
+
+---
 
 ## Exception Handling
 
-Global Exception Handling using:
+Implemented using:
 
 - EmployeeNotFoundException
 - RuntimeException
 - MethodArgumentNotValidException
+- GlobalExceptionHandler
+
+---
 
 ## Logging
 
-Implemented using SLF4J.
+Implemented using SLF4J
 
 Examples:
 
@@ -176,51 +263,101 @@ log.info("Updating employee with id: {}", id);
 log.error("Employee not found");
 ```
 
+---
+
 ## Swagger Documentation
 
-After running the application:
+After starting the application:
 
 ```
 http://localhost:8080/swagger-ui/index.html
 ```
 
-## Database Schema
+---
 
-### Department Table
+## Auditing
 
-| id | department_name |
-|----|---------------|
-| 1 | IT |
-| 2 | HR |
+Employee records automatically maintain:
 
-### Employee Table
+```java
+private LocalDateTime createdAt;
+private LocalDateTime updatedAt;
+```
 
-| id | name | salary | department_id |
-|----|------|--------|---------------|
-| 1 | Ram | 100000 | 1 |
+using:
+
+```java
+@PrePersist
+public void prePersist() {
+    this.createdAt = LocalDateTime.now();
+    this.updatedAt = LocalDateTime.now();
+}
+
+@PreUpdate
+public void preUpdate() {
+    this.updatedAt = LocalDateTime.now();
+}
+```
+
+---
 
 ## Future Enhancements
 
-- Spring Security + JWT
-- Audit Fields
-- File Upload
+### Security
+- Spring Security
+- JWT Authentication
+- Role-Based Authorization
+- BCrypt Password Encryption
+
+### Performance
 - Caching
 - Redis
-- Kafka Integration
-- Microservices Architecture
-- API Gateway
+
+### Additional Features
+- File Upload
+- Email Service
+- Scheduler
+- Async Processing
+
+### Microservices
 - Eureka Server
+- API Gateway
 - OpenFeign
+- Resilience4J
+
+### Messaging
+- Kafka Integration
+
+### Deployment
 - Docker
 - CI/CD Pipeline
-- Deployment to AWS
+- AWS Deployment
+
+---
 
 ## Author
 
-**Rajyasree**
+### Rajyasree
 
-Java | Spring Boot | Microservices | Kafka | Apache Flink | MongoDB
+**Software Engineer | Java | Spring Boot | Microservices | Kafka | Apache Flink | MongoDB**
 
-```
+---
 
-This README is suitable for a GitHub project and looks professional enough for interviews and recruiters.
+## Current Progress
+
+### Phase 1 ✅ Completed
+### Phase 2 ✅ Completed
+### Phase 3 🚧 In Progress
+
+- ✅ Audit Fields
+- ⬜ Spring Security + JWT Authentication
+- ⬜ Role-Based Authorization
+- ⬜ Password Encryption
+- ⬜ File Upload
+- ⬜ Redis
+- ⬜ Caching
+- ⬜ Kafka Integration
+- ⬜ Docker
+- ⬜ Deployment
+
+---
