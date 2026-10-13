@@ -21,7 +21,8 @@ public class EmployeeMapper {
                 employee.getId(),
                 employee.getName(),
                 employee.getDepartment().getDepartmentName(),
-                employee.getSalary()
+                employee.getSalary(),
+                employee.getProfileImage()
         );
     }
 }

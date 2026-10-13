@@ -10,6 +10,9 @@ import com.example.EmployeeManagement.repository.DepartmentRepository;
 import com.example.EmployeeManagement.repository.EmployeeRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -47,6 +50,7 @@ public class EmployeeServiceImpl implements EmployeeService{
         }
 
         @Override
+        @Cacheable(value = "employees")
         public List<EmployeeResponseDto> getAllEmployees(){
            return employeeRepository.findAll()
                    .stream()
@@ -55,6 +59,7 @@ public class EmployeeServiceImpl implements EmployeeService{
         }
 
         @Override
+        @Cacheable(value = "employees", key = "#id")
         public EmployeeResponseDto getEmployeeById(Long id){
             log.info("Fetching employee with id: {} ", id);
             Employee employee = employeeRepository.findById(id)
@@ -64,6 +69,7 @@ public class EmployeeServiceImpl implements EmployeeService{
 
 
     @Override
+    @CachePut(value = "employees", key ="#id")
     public EmployeeResponseDto updateEmployee(Long id, EmployeeRequestDto dto) {
         log.info("Updating employee with id: {}", id);
         Employee existingEmployee = employeeRepository.findById(id)
@@ -84,6 +90,7 @@ public class EmployeeServiceImpl implements EmployeeService{
     }
 
     @Override
+    @CacheEvict(value= "employees", key = "#id")
     public void deleteEmployee(Long id) {
         log.info("Deleting employee with id: {}", id);
        Employee employee = employeeRepository.findById(id)

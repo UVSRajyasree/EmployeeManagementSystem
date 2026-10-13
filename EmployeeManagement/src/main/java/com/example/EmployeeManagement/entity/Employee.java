@@ -31,6 +31,7 @@ public class Employee extends BaseEntity {
     @JoinColumn(name = "department_id")
     private Department department;
 
+    private String profileImage;
 
 
 }
